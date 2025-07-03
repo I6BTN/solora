@@ -10,6 +10,21 @@ interface Weather {
   time: string;
 }
 
+async function fetchCity(lat: number, lon: number): Promise<string | null> {
+  try {
+    const resp = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&count=1`
+    );
+    const data = await resp.json();
+    if (data.results && data.results.length > 0) {
+      return data.results[0].name as string;
+    }
+  } catch (err) {
+    console.error('Failed to load city name', err);
+  }
+  return null;
+}
+
 async function fetchWeather(lat: number, lon: number): Promise<Weather | null> {
   try {
     const resp = await fetch(
@@ -32,13 +47,13 @@ async function fetchWeather(lat: number, lon: number): Promise<Weather | null> {
 
 const position: [number, number] = [0, 0];
 
-function WeatherMarker({ onWeather }: { onWeather: (w: Weather, lat: number, lon: number) => void }) {
+function WeatherMarker({ onWeather }: { onWeather: (w: Weather, city: string | null, lat: number, lon: number) => void }) {
   useMapEvents({
     click: async (e) => {
       const { lat, lng } = e.latlng;
-      const data = await fetchWeather(lat, lng);
+      const [data, city] = await Promise.all([fetchWeather(lat, lng), fetchCity(lat, lng)]);
       if (data) {
-        onWeather(data, lat, lng);
+        onWeather(data, city, lat, lng);
       }
     },
   });
@@ -47,6 +62,7 @@ function WeatherMarker({ onWeather }: { onWeather: (w: Weather, lat: number, lon
 
 function App() {
   const [weather, setWeather] = useState<Weather | null>(null);
+  const [city, setCity] = useState<string | null>(null);
   const [markerPos, setMarkerPos] = useState<[number, number] | null>(null);
 
   useEffect(() => {
@@ -72,11 +88,12 @@ function App() {
       <MapContainer center={position} zoom={2} className="map">
         <TileLayer
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         <WeatherMarker
-          onWeather={(w, lat, lon) => {
+          onWeather={(w, c, lat, lon) => {
             setWeather(w);
+            setCity(c);
             setMarkerPos([lat, lon]);
           }}
         />
@@ -90,7 +107,8 @@ function App() {
             })}
           >
             <Popup>
-              <div className="glass">
+              <div className="glass card">
+                {city && <div className="city">{city}</div>}
                 <div>🌡️ {weather.temperature}&deg;C</div>
                 <div>🌬️ {weather.windspeed} km/h</div>
                 <div>{weather.time}</div>
@@ -100,6 +118,7 @@ function App() {
         )}
       </MapContainer>
       <div className="instructions">Click on the map to view live weather. Data updates every 5 minutes.</div>
+      <div className="footer">Solora © 2025</div>
     </div>
   );
 }

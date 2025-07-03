@@ -7,4 +7,6 @@ body,
 
 body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle at top, #ff9d00, #1a1a1a);
+  color: #fff;
 }
