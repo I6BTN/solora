@@ -1,1 +1,13 @@
-# solora
+# Solora Weather App
+
+This repository contains a simple weather map built with React and Vite.
+The application lives in the `weather-map` directory.
+
+```bash
+cd weather-map
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser. Click anywhere on the map to get
+current temperature and windspeed information from the Open-Meteo API.
