@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  Marker,
+  Popup,
+  useMap,
+} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet-terminator';
 import './App.css';
 
 interface Weather {
@@ -47,6 +55,25 @@ async function fetchWeather(lat: number, lon: number): Promise<Weather | null> {
 
 const position: [number, number] = [0, 0];
 
+function DayNight() {
+  const map = useMap();
+  useEffect(() => {
+    // leaflet-terminator has no types
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const term = (L as any).terminator();
+    term.addTo(map);
+    const id = setInterval(() => {
+      term.setTime();
+      term.redraw();
+    }, 600000); // update every 10 minutes
+    return () => {
+      map.removeLayer(term);
+      clearInterval(id);
+    };
+  }, [map]);
+  return null;
+}
+
 function WeatherMarker({ onWeather }: { onWeather: (w: Weather, city: string | null, lat: number, lon: number) => void }) {
   useMapEvents({
     click: async (e) => {
@@ -90,6 +117,7 @@ function App() {
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
+        <DayNight />
         <WeatherMarker
           onWeather={(w, c, lat, lon) => {
             setWeather(w);

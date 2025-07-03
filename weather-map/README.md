@@ -5,7 +5,8 @@ It displays an interactive map using **react-leaflet**. Click anywhere on the
 map to fetch current weather data and the nearest city from the
 [Open-Meteo](https://open-meteo.com/) API. Once a location is selected, the
 current conditions automatically refresh every five minutes. The UI features a
-dark solar theme with glassmorphism effects.
+dark solar theme with glassmorphism effects. A day/night overlay updates
+periodically and zoom controls share the same glass styling.
 
 ## Development
 
