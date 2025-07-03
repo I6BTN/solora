@@ -10,4 +10,5 @@ npm run dev
 ```
 
 Open `http://localhost:5173` in your browser. Click anywhere on the map to get
-current temperature and windspeed information from the Open-Meteo API.
+live temperature and windspeed information from the Open-Meteo API. Once you
+place a marker the data refreshes automatically every five minutes.
